@@ -1,0 +1,13 @@
+{
+    "slaves":["localhost","192.168.0.101"],
+    "commands":[
+        {
+            "name":"calc",
+            "commands":["taskkill /f /im calc.exe", "start calc.exe"]
+        },
+        {
+            "name":"notepad",
+            "commands":["taskkill /f /im notepad.exe", "start notepad.exe"]
+        }
+    ]
+}
