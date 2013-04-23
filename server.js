@@ -2,7 +2,8 @@
 var connect = require('connect')
     , express = require('express')
     , io = require('socket.io')
-    , port = (process.env.PORT || 8081);
+    , port = (process.env.PORT || 8081)
+    , slave = require('slave');
 
 //Setup Express
 var server = express.createServer();
@@ -66,6 +67,11 @@ server.get('/', function(req,res){
              ,analyticssiteid: 'XXXXXXX' 
             }
   });
+});
+
+server.get('/fullinfo', function (req,res){
+
+
 });
 
 
