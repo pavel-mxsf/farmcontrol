@@ -72,12 +72,18 @@ server.get('/', function(req,res){
   });
 });
 
-server.get('/fullinfo', function (req,res){
+server.get('/slave/fullinfo', function (req,res){
     res.send(slave.fullInfo);
 });
 
-server.get('/realtimeinfo', function (req,res){
+server.get('/slave/realtimeinfo', function (req,res){
     res.send(slave.realtimeInfo());
+});
+
+server.post('/slave/run', function (req,res){
+    slave.run(req.body);
+    res.end();
+    console.log('closed');
 });
 
 //A Route for Creating a 500 Error (Useful to keep around)
