@@ -5,6 +5,9 @@ var connect = require('connect')
     , port = (process.env.PORT || 8081)
     , slave = require('slave');
 
+slave.init();
+slave.start();
+
 //Setup Express
 var server = express.createServer();
 server.configure(function(){
@@ -70,10 +73,12 @@ server.get('/', function(req,res){
 });
 
 server.get('/fullinfo', function (req,res){
-
-
+    res.send(slave.fullInfo);
 });
 
+server.get('/realtimeinfo', function (req,res){
+    res.send(slave.realtimeInfo());
+});
 
 //A Route for Creating a 500 Error (Useful to keep around)
 server.get('/500', function(req, res){
