@@ -3,7 +3,8 @@ var connect = require('connect')
     , express = require('express')
     , io = require('socket.io')
     , port = (process.env.PORT || 8081)
-    , slave = require('slave');
+    , slave = require('slave')
+    , server = require('server');
 
 slave.init();
 slave.start();
