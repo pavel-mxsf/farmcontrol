@@ -1,5 +1,6 @@
 {
-    "slaves":["localhost","192.168.0.101"],
+    "updateInterval":500,
+    "slaves":["localhost", "192.168.0.101", "192.168.0.102"],
     "commands":[
         {
             "name":"calc",

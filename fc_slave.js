@@ -6,7 +6,7 @@ var interval;
 var updateSpeed = 1000;
 var last = process.hrtime();
 var previousCPU = os.cpus();
-var asyncblock = require('asyncblock');
+
 
 function startUpdating() {
     this.realtimeupdate = true;
@@ -74,21 +74,28 @@ function update() {
     };
 }
 
-function run(reqbody) {
-    console.log('running ' + reqbody.name);
-    asyncblock(function (flow) {
-        flow.errorCallback = function (err) {
-            console.log(err)
-        };
-        for (var i = 0; i < reqbody.commands.length; i++) {
-            var exec = require('child_process').exec;
-            console.log(reqbody.commands[i]);
-            exec(reqbody.commands[i], {timeout:0}, flow.add({ignoreError:true, timeout:500, timeoutIsError:false}));
-            flow.wait();
-        }
-    })
-}
+function run(toExecute) {
+    console.log('running ' + JSON.stringify(toExecute.cmd));
+    var command = toExecute.cmd;
+    var terminal = require('child_process').spawn('cmd');
+    str = '';
+    terminal.stdout.on('data', function (data) {
+        str += data;
+    });
 
+    terminal.on('exit', function (code) {
+        console.log('child process exited with code ' + code);
+        console.log('stdout: ' + str);
+    });
+
+    for (var i = 0; i < command.commands.length; i++) {
+        /* var exec = require('child_process').exec;
+         console.log(command.commands[i]);
+         exec(command.commands[i], {timeout:0}, function(err, stdout, stderr ){console.log(stderr)});*/
+        terminal.stdin.write(command.commands[i] + '\n');
+    }
+    terminal.stdin.end();
+}
 
 module.exports = {fullInfo:fullInfo,
     init:init,

@@ -1,10 +1,10 @@
-//setup Dependencies
 var connect = require('connect')
     , express = require('express')
-// , io = require('socket.io')
     , port = (process.env.PORT || 8081)
     , slave = require('./fc_slave')
-    , fcserver = require('./fc_server');
+    , fcserver = require('./fc_server')
+    , querystring = require('querystring')
+    , http = require('http');
 
 slave.init();
 slave.start();
@@ -62,7 +62,7 @@ server.listen(port);
 server.get('/', function (req, res) {
     res.render('index.jade', {
         locals:{
-            title:'RenderFarmControl', description:'Main Panel', author:'Pavel Vojacek', analyticssiteid:'XXXXXXX'
+            title:'RenderFarmControl', description:'Main Panel', author:'Pavel Vojacek'
         }
     });
 });
@@ -73,13 +73,67 @@ server.get('/slave/fullinfo', function (req, res) {
 });
 
 server.get('/slave/realtimeinfo', function (req, res) {
-    res.send(slave.realtimeInfo());
+    var info = slave.realtimeInfo();
+    res.send(info);
 });
 
 server.post('/slave/run', function (req, res) {
-    slave.run(req.body);
+    //
+    var str = '';
+    req.on('data', function (chunk) {
+        str += chunk;
+    });
+    req.on('end', function (err) {
+        console.log(str);
+        slave.run(JSON.parse(str));
+        console.log(JSON.stringify(JSON.parse(str)));
+    });
     res.end();
-    console.log('closed');
+});
+
+server.post('/server/run', function (req, res) {
+    console.log(req.body.cmd);
+    var hostname = req.body.hostname;
+    var options = {
+        hostname:hostname,
+        port:8081,
+        path:'/slave/run',
+        method:'POST'
+    };
+    var reqp = http.request(options, function (res) {
+        var str = '';
+        res.on('data', function (chunk) {
+            str += chunk;
+        });
+        res.on('error', function (err) {
+            console.log('/server/run');
+            console.log(err);
+        });
+        res.on('end', function (err) {
+            console.log('done');
+        });
+    });
+    reqp.setTimeout(100, function () {
+    });
+    reqp.on('error', function (err) {
+        console.log(err);
+    });
+    reqp.write(JSON.stringify(req.body));
+    reqp.end();
+    res.end();
+});
+
+server.post('/server/wol', function (req, res) {
+
+});
+
+server.get('/server/infos', function (req, res) {
+    var nfo = {data:fcserver.getSlavesInfo()};
+    res.send(nfo);
+});
+
+server.get('/server/commands', function (req, res) {
+    res.send(fcserver.getCommands());
 });
 
 //A Route for Creating a 500 Error (Useful to keep around)

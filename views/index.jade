@@ -1,6 +1,21 @@
 extends layout
 
 block content
-	div
-		a(id='sender')='Send a Message'
-		ul(id='receiver')
+  script(src='/js/mainPanelController.js')
+  div(ng:controller="MainPanelCtrl", ng:init="getCommands()")
+
+    hr
+    table.table.table-striped
+      tr(ng:repeat="(key, value) in info.data")
+        td {{key}}
+        td {{value.fullInfo.hostname}}
+
+        td
+          div(ng:repeat="cpu in value.rtInfo.cpusPerc",style="width:100px;height:{{20/value.rtInfo.cpusPerc.length}}px;margin-bottom:0px").progress
+            div.bar(style="width: {{cpu}}px")
+        td
+          div(style="width:100px;height:20px;margin-bottom:0px").progress
+            div.bar(style="width: {{100-value.rtInfo.freemem/value.fullInfo.totalmem*100}}px")
+        td(ng:repeat="cmd in commands")
+            button(ng:click="runCommand(key,cmd)").btn {{cmd.name}}
+

@@ -9,8 +9,7 @@
         "jade":"0.20.0",
         "socket.io":"0.8.7",
         "getmac":"*",
-        "asyncblock":"*",
-        "memwatch":"*"
+        "asyncblock":"*"
     },
     "devDependencies":{
         "vows":"0.5.x",
