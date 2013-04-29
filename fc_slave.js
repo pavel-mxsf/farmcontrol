@@ -3,10 +3,10 @@ var getmac = require('getmac');
 var realtimeupdate = false;
 var realTimeInfo = {};
 var interval;
-var updateSpeed = 1000;
+var updateSpeed = 3000;
 var last = process.hrtime();
 var previousCPU = os.cpus();
-
+var mac = "";
 
 function startUpdating() {
     this.realtimeupdate = true;
@@ -33,13 +33,14 @@ function fullInfo() {
         release:os.release(),
         totalmem:os.totalmem(),
         cpucount:os.cpus().length,
-        networkinterfaces:os.networkInterfaces()
+        networkinterfaces:os.networkInterfaces(),
+        mac:mac
     }
 }
 
 function init() {
     getmac.getMac(function (err, macAddress) {
-        fullInfo.mac = macAddress;
+        mac = macAddress;
     });
     update();
 }
@@ -54,13 +55,16 @@ function update() {
     var cpusPerc = [];
     var cpusSpeeds = [];
     for (var i = 0; i < cpus.length; i++) {
-        var cpuPerc = (100 - ((cpus[i].times.idle - previousCPU[i].times.idle) / time * 100)).toFixed(0);
+        var cpuPerc = (100 - ((cpus[i].times.idle - previousCPU[i].times.idle) / time * 100)).toFixed(2);
+        console.log(time);
+        //console.log(cpus[i].times.idle-previousCPU[i].times.idle);
         if (cpuPerc > 100) {
             cpuPerc = 100
         }
         if (cpuPerc < 0) {
             cpuPerc = 0
         }
+        console.log(cpuPerc);
         cpusPerc.push(cpuPerc);
         cpusSpeeds.push(cpus[i].speed);
     }

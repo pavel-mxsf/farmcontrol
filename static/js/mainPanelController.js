@@ -1,8 +1,7 @@
 var mm = angular.module('farmControl', []);
 
-function MainPanelCtrl($scope, $http, $timeout) {
-    $scope.name = 'paja';
-    $scope.info = {};
+mm.controller("MainPanelCtrl", function($scope, $http, $timeout) {
+    //$scope.info = {data:{}};
     $scope.commands = [];
 
     $scope.getCommands = function () {
@@ -14,6 +13,32 @@ function MainPanelCtrl($scope, $http, $timeout) {
 
             });
     };
+
+    function update( destination, source ) {
+        var angularJSKeyPattern = /^\$\$/i;
+        for ( var name in source ) {
+            if (
+                source.hasOwnProperty( name ) && ! angularJSKeyPattern.test( name )
+                ) {
+
+                destination[ name ] = source[ name ];
+            }
+        }
+    }
+
+    function rebuild (data) {
+        if (!$scope.info) {
+            $scope.info = data;
+            console.log('initial');
+        }
+        else
+        {
+            for (var slave in data.data) {
+                update( $scope.info.data[slave], data.data[slave]);
+
+            }
+        }
+    }
 
     $scope.runCommand = function (host, cmd) {
         console.log(host);
@@ -30,15 +55,23 @@ function MainPanelCtrl($scope, $http, $timeout) {
             });
     };
 
+    $scope.refreshSpeed = 500;
+
+    $scope.computeCpuTotal = function () {
+
+
+    };
+
     $scope.refresh = function () {
         $http({method:'GET', url:'/server/infos'}).
             success(function (data, status, headers, config) {
-                $scope.info = data;
-                $timeout($scope.refresh, 1000);
+                rebuild(data);
+                console.log(data);
+                $timeout($scope.refresh, $scope.refreshSpeed);
             }).
             error(function (data, status, headers, config) {
-                $timeout($scope.refresh, 1000);
+                $timeout($scope.refresh, $scope.refreshSpeed);
             });
     };
-    $timeout($scope.refresh, 1000);
-}
+    $timeout($scope.refresh, $scope.refreshSpeed);
+});

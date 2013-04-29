@@ -2,17 +2,21 @@ extends layout
 
 block content
   script(src='/js/mainPanelController.js')
+
   div(ng:controller="MainPanelCtrl", ng:init="getCommands()")
 
-    hr
+    div.navbar.navbar-inverse
+      div.navbar-inner
+        input(type='number',ng:model='refreshSpeed',min='100',max='5000').navbar-search.pull-right
+
     table.table.table-striped
       tr(ng:repeat="(key, value) in info.data")
         td {{key}}
         td {{value.fullInfo.hostname}}
 
         td
-          div(ng:repeat="cpu in value.rtInfo.cpusPerc",style="width:100px;height:{{20/value.rtInfo.cpusPerc.length}}px;margin-bottom:0px").progress
-            div.bar(style="width: {{cpu}}px")
+          div(ng:repeat="cpu in value.rtInfo.cpusPerc track by $index",style="width:100px;height:{{20/value.rtInfo.cpusPerc.length+1}}px;margin-bottom:1px").progress
+            div.bar(style="width: {{cpu}}px", ng:class="{'bar-success':cpu<70,'bar-warning':cpu>70 && cpu<95,'bar-danger':cpu>95}")
         td
           div(style="width:100px;height:20px;margin-bottom:0px").progress
             div.bar(style="width: {{100-value.rtInfo.freemem/value.fullInfo.totalmem*100}}px")
