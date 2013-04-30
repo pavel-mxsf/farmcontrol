@@ -1,14 +1,29 @@
 {
     "updateInterval":500,
-    "slaves":["localhost", "192.168.0.101", "192.168.0.102"],
+    "slaves":["localhost", "192.168.0.101", "192.168.0.102","192.168.0.103","192.168.0.104"],
     "commands":[
         {
-            "name":"calc",
-            "commands":["taskkill /f /im calc.exe", "start calc.exe"]
+            "name":"DR12",
+            "process":"vrayspawner2012.exe",
+            "commands":[
+                "taskkill /f /im vrayspawner2012.exe",
+                "taskkill /f /im server.exe",
+                "taskkill /f /im 3dsmax.exe",
+                "\"c:\\cad\\3dsmax\\max2012\\3ds Max 2012\\vrayspawner2012.exe\""]
         },
         {
-            "name":"notepad",
-            "commands":["taskkill /f /im notepad.exe", "start notepad.exe"]
+            "name":"BB",
+            "process": "server.exe",
+            "commands":[
+                "taskkill /f /im vrayspawner2012.exe",
+                "taskkill /f /im server.exe",
+                "taskkill /f /im 3dsmax.exe",
+                "\"c:\\cad\\3dsmax\\backburner\\server.exe\""]
+        },
+        {
+            "name":"sleep",
+            "process":"",
+            "commands":["psshutdown /accepteula -d -t 0 -n 0"]
         }
     ]
 }

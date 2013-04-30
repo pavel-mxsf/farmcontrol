@@ -1,7 +1,6 @@
 var mm = angular.module('farmControl', []);
 
 mm.controller("MainPanelCtrl", function($scope, $http, $timeout) {
-    //$scope.info = {data:{}};
     $scope.commands = [];
 
     $scope.getCommands = function () {
@@ -20,7 +19,6 @@ mm.controller("MainPanelCtrl", function($scope, $http, $timeout) {
             if (
                 source.hasOwnProperty( name ) && ! angularJSKeyPattern.test( name )
                 ) {
-
                 destination[ name ] = source[ name ];
             }
         }
@@ -35,7 +33,6 @@ mm.controller("MainPanelCtrl", function($scope, $http, $timeout) {
         {
             for (var slave in data.data) {
                 update( $scope.info.data[slave], data.data[slave]);
-
             }
         }
     }
@@ -55,11 +52,20 @@ mm.controller("MainPanelCtrl", function($scope, $http, $timeout) {
             });
     };
 
-    $scope.refreshSpeed = 500;
+    $scope.refreshSpeed = 1000;
 
     $scope.computeCpuTotal = function () {
 
 
+    };
+    $scope.wol = function(mac) {
+        $http({method:'POST', url:'/server/wol',data:{mac:mac}}).
+            success(function (data, status, headers, config) {
+                console.log('waking '+mac);
+            }).
+            error(function (data, status, headers, config) {
+                console.log(data);
+            });
     };
 
     $scope.refresh = function () {

@@ -3,10 +3,11 @@ var getmac = require('getmac');
 var realtimeupdate = false;
 var realTimeInfo = {};
 var interval;
-var updateSpeed = 3000;
+var updateSpeed = 1000;
 var last = process.hrtime();
 var previousCPU = os.cpus();
 var mac = "";
+var tasks = require('./fc_tasklist.js');
 
 function startUpdating() {
     this.realtimeupdate = true;
@@ -21,10 +22,26 @@ function stopUpdating() {
 function getTimeInterval() {
     var diff = process.hrtime(last);
     last = process.hrtime();
-    return (diff[0] * 1e9 + diff[1]) / 1000000;
+   // return (diff[0].toFixed(3) * 1000);// + diff[1].toFixed(0) / 1000000);
+    return updateSpeed;
 }
 
-function fullInfo() {
+function fullInfo(done) {
+    getmac.getMac(function (err, macAddress) {
+        mac = macAddress;
+        done({
+                hostname:os.hostname(),
+                type:os.type(),
+                platform:os.platform(),
+                arch:os.arch(),
+                release:os.release(),
+                totalmem:os.totalmem(),
+                cpucount:os.cpus().length,
+                networkinterfaces:os.networkInterfaces(),
+                mac:mac
+            }
+        )
+    });
     return {
         hostname:os.hostname(),
         type:os.type(),
@@ -54,9 +71,10 @@ function update() {
     var time = getTimeInterval();
     var cpusPerc = [];
     var cpusSpeeds = [];
+
     for (var i = 0; i < cpus.length; i++) {
         var cpuPerc = (100 - ((cpus[i].times.idle - previousCPU[i].times.idle) / time * 100)).toFixed(2);
-        console.log(time);
+
         //console.log(cpus[i].times.idle-previousCPU[i].times.idle);
         if (cpuPerc > 100) {
             cpuPerc = 100
@@ -64,18 +82,23 @@ function update() {
         if (cpuPerc < 0) {
             cpuPerc = 0
         }
-        console.log(cpuPerc);
+
         cpusPerc.push(cpuPerc);
         cpusSpeeds.push(cpus[i].speed);
+
     }
     previousCPU = cpus;
 
+
     realTimeInfo = {
-        uptime:os.uptime(),
-        loadAverage:os.loadavg(),
-        freemem:os.freemem(),
-        cpusPerc:cpusPerc
+        uptime: os.uptime(),
+        loadAverage: os.loadavg(),
+        freemem: os.freemem(),
+        cpusPerc: cpusPerc,
+        cpusSpeeds: cpusSpeeds,
+        tasks: tasks.status
     };
+    tasks.refresh();
 }
 
 function run(toExecute) {

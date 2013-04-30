@@ -4,7 +4,8 @@ var connect = require('connect')
     , slave = require('./fc_slave')
     , fcserver = require('./fc_server')
     , querystring = require('querystring')
-    , http = require('http');
+    , http = require('http')
+    , wol = require('wake_on_lan');
 
 slave.init();
 slave.start();
@@ -68,8 +69,7 @@ server.get('/', function (req, res) {
 });
 
 server.get('/slave/fullinfo', function (req, res) {
-    var info = slave.fullInfo();
-    res.send(info);
+    var info = slave.fullInfo(function(info){res.send(info)});
 });
 
 server.get('/slave/realtimeinfo', function (req, res) {
@@ -90,6 +90,19 @@ server.post('/slave/run', function (req, res) {
     });
     res.end();
 });
+
+server.post('/server/wol', function (req,res){
+    console.log(req.body.mac);
+    wol.wake(req.body.mac, function(error) {
+        if (error) {
+            console.log(err);
+        } else {
+            console.log('wol ok');
+        }
+    });
+
+});
+
 
 server.post('/server/run', function (req, res) {
     console.log(req.body.cmd);
