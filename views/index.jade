@@ -20,6 +20,7 @@ block content
         td
           div(ng:repeat="cpu in value.rtInfo.cpusPerc track by $index",style="width:100px;height:{{80/value.rtInfo.cpusPerc.length}}px;margin-bottom:0px").progress
             div.bar(style="width: {{cpu}}px", ng:class="{'bar-success':cpu<70,'bar-warning':cpu>70 && cpu<95,'bar-danger':cpu>95}")
+
         //td
         //    div(ng:repeat="cpu in value.rtInfo.cpusSpeeds track by $index") {{cpu}}
         td

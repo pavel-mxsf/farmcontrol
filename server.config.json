@@ -1,6 +1,6 @@
 {
     "updateInterval":500,
-    "slaves":["localhost", "192.168.0.101", "192.168.0.102","192.168.0.103","192.168.0.104"],
+    "slaves":["localhost", "192.168.0.101", "192.168.0.102","192.168.0.103","192.168.0.104","192.168.0.105","192.168.0.106","192.168.0.107"],
     "commands":[
         {
             "name":"DR12",
@@ -10,6 +10,16 @@
                 "taskkill /f /im server.exe",
                 "taskkill /f /im 3dsmax.exe",
                 "\"c:\\cad\\3dsmax\\max2012\\3ds Max 2012\\vrayspawner2012.exe\""]
+        },
+        {
+            "name":"DR14",
+            "process": "vrayspawner2014.exe",
+            "commands":[
+                "taskkill /f /im vrayspawner2012.exe",
+                "taskkill /f /im vrayspawner2014.exe",
+                "taskkill /f /im server.exe",
+                "taskkill /f /im 3dsmax.exe",
+                "\"c:\\cad\\3dsmax\\max2014\\3ds Max 2014\\vrayspawner2014.exe\""]
         },
         {
             "name":"BB",

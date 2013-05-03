@@ -1,4 +1,5 @@
-var mm = angular.module('farmControl', []);
+angular.module('farmControl', ['ui.bootstrap','ui.bootstrap.tooltip','ui.bootstrap.progressbar']);
+var mm = angular.module('farmControl', ['ui.bootstrap']);
 
 mm.controller("MainPanelCtrl", function($scope, $http, $timeout) {
     $scope.commands = [];
@@ -72,7 +73,6 @@ mm.controller("MainPanelCtrl", function($scope, $http, $timeout) {
         $http({method:'GET', url:'/server/infos'}).
             success(function (data, status, headers, config) {
                 rebuild(data);
-                console.log(data);
                 $timeout($scope.refresh, $scope.refreshSpeed);
             }).
             error(function (data, status, headers, config) {

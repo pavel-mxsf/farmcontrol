@@ -1,0 +1,42 @@
+var edge = require('edge');
+
+var getProc = edge.func({
+    source: function(){/*
+     //using System;
+     using System.Threading.Tasks;
+     using System.Collections.Generic;
+     using System.Diagnostics;
+
+     public class Startup {
+         public async Task<object> Invoke(object input)
+         {
+            IDictionary<string, object> payload = (IDictionary<string,object>)input;
+            object[] par = (object[])payload["proclist"];
+            Dictionary<string, Boolean> stats = new Dictionary<string, bool>();
+
+            foreach(String name in par){
+                stats.Add(name, false);
+            }
+
+            Process[] processlist = Process.GetProcesses();
+         foreach(Process theprocess in processlist){
+            var fullname = theprocess.ProcessName+".exe";
+            if (stats.ContainsKey(fullname)) {stats[fullname]=true;}
+         }
+            return stats;
+         }
+     }
+    */},
+    references: ['System.Data.dll']
+});
+
+getProc({proclist:['server.exe','calc.exe','node.exe']}, function(err,res){
+    if (err) {
+        console.log(err)
+    }
+    else {
+        console.log(res)
+    }
+    });
+
+setInterval(function(){console.log('.')},10);

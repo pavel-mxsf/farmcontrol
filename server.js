@@ -100,7 +100,7 @@ server.post('/server/wol', function (req,res){
             console.log('wol ok');
         }
     });
-
+    res.end();
 });
 
 
