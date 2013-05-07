@@ -131,7 +131,7 @@ function stopUpdating() {
 
 function fullInfo() {
 }
-function realtimeInfo() {
+    function realtimeInfo() {
 }
 
 function getSlavesInfo() {

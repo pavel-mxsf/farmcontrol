@@ -29,5 +29,5 @@ block content
         td
           button(ng:show="value.fullInfo.mac",ng:click="wol(value.fullInfo.mac)",style="width:100px;height:100%").btn.btn-success wake
         td(ng:repeat="cmd in commands",style="width:100px;height:100%")
-            button(style="width:100%;height:100%",ng:click="runCommand(key,cmd)",ng:disabled="!value.rtInfo",ng:class="{'disabled':!value.rtInfo}").btn {{cmd.name}}
+            button(style="width:100%;height:100%",ng:click="runCommand(key,cmd)",ng:disabled="!value.rtInfo",ng:class="{'disabled':!value.rtInfo,'btn-success':value.rtInfo.processInfo[cmd.process]}").btn {{cmd.name}}
 

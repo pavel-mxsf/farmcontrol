@@ -7,7 +7,7 @@ var updateSpeed = 1000;
 var last = process.hrtime();
 var previousCPU = os.cpus();
 var mac = "";
-var tasks = require('./fc_tasklist.js');
+var getProcess = require('./fc_getprocess.js');
 
 function startUpdating() {
     this.realtimeupdate = true;
@@ -66,7 +66,15 @@ function getRTinfo() {
     return realTimeInfo;
 }
 
+function addProcessInfo(err, nfo) {
+    if (err) {console.log(err)}
+    else {realTimeInfo.processInfo = nfo}
+
+}
+
 function update() {
+    getProcess.getProcessAsync({proclist:['server.exe','calc.exe','node.exe']}, addProcessInfo);
+
     var cpus = os.cpus();
     var time = getTimeInterval();
     var cpusPerc = [];
@@ -88,17 +96,13 @@ function update() {
 
     }
     previousCPU = cpus;
-
-
     realTimeInfo = {
         uptime: os.uptime(),
         loadAverage: os.loadavg(),
         freemem: os.freemem(),
         cpusPerc: cpusPerc,
-        cpusSpeeds: cpusSpeeds,
-        tasks: tasks.status
+        cpusSpeeds: cpusSpeeds
     };
-    tasks.refresh();
 }
 
 function run(toExecute) {
@@ -126,8 +130,8 @@ function run(toExecute) {
 
 module.exports = {fullInfo:fullInfo,
     init:init,
-    realtimeInfo:getRTinfo,
-    start:startUpdating,
-    stop:stopUpdating,
-    run:run
+    realtimeInfo: getRTinfo,
+    start: startUpdating,
+    stop: stopUpdating,
+    run: run
 };
