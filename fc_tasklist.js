@@ -1,29 +1,32 @@
-var status = {};
-var names=['calc.exe'];
-
-function refresh() {
-    if (names.length>0)
+function getProcessAsync(data,callback) {
+    var plist = data.proclist;
+    if (plist.length>0)
     {
     var exec = require('child_process').exec;
     exec('tasklist /nh', function(err, stdout, stderr) {
         if (err) {
-
+            callback(err,null);
         }
         else
         {
-            var lines=stdout.split('\n');
-            for (var j=0;j<names.length;j++) {
-                status[names[j]] = false;
-                for (var i=0;i<lines.length;i++){
-                    if (lines[i].indexOf(names[j])===0) {
-                        status[names[j]] = true;
+            var status = {};
+            var lines = stdout.split('\n');
+            for (var j = 0; j<plist.length; j++) {
+                status[plist[j]] = false;
+                for (var i=0; i<lines.length; i++){
+                    if (lines[i].indexOf(plist[j]) === 0) {
+                        status[plist[j]] = true;
                         break;
                     }
                 }
             }
+            callback(null,status);
         }
     });
     }
+    else {
+        callback('no processes to check.',null)
+    }
 }
 
-module.exports = { status:status, names:names, refresh:refresh };
+module.exports = { getProcessAsync:getProcessAsync};

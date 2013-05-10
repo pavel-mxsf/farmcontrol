@@ -7,7 +7,8 @@ var updateSpeed = 1000;
 var last = process.hrtime();
 var previousCPU = os.cpus();
 var mac = "";
-var getProcess = require('./fc_getprocess.js');
+//var getProcess = require('./fc_getprocess.js');
+var getProcess = require('./fc_tasklist.js');
 
 function startUpdating() {
     this.realtimeupdate = true;
@@ -69,11 +70,10 @@ function getRTinfo() {
 function addProcessInfo(err, nfo) {
     if (err) {console.log(err)}
     else {realTimeInfo.processInfo = nfo}
-
 }
 
 function update() {
-    getProcess.getProcessAsync({proclist:['server.exe','calc.exe','node.exe']}, addProcessInfo);
+    getProcess.getProcessAsync({proclist:['server.exe','calc.exe','node.exe','vrayspawner2012.exe']}, addProcessInfo);
 
     var cpus = os.cpus();
     var time = getTimeInterval();
@@ -90,19 +90,19 @@ function update() {
         if (cpuPerc < 0) {
             cpuPerc = 0
         }
-
         cpusPerc.push(cpuPerc);
         cpusSpeeds.push(cpus[i].speed);
 
     }
     previousCPU = cpus;
-    realTimeInfo = {
-        uptime: os.uptime(),
-        loadAverage: os.loadavg(),
-        freemem: os.freemem(),
-        cpusPerc: cpusPerc,
-        cpusSpeeds: cpusSpeeds
-    };
+
+    realTimeInfo.uptime= os.uptime();
+    realTimeInfo.loadAverage= os.loadavg();
+    realTimeInfo.freemem= os.freemem();
+    realTimeInfo.cpusPerc= cpusPerc;
+    realTimeInfo.cpusSpeeds= cpusSpeeds;
+
+
 }
 
 function run(toExecute) {

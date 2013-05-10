@@ -11,6 +11,19 @@ function init() {
     slaves = settings.slaves;
 }
 
+function reloadConfig(callback) {
+    fs.readFile('server.config.json', function(err,data){
+        if (err) {
+            callback(err,null);
+        }
+        else{
+            settings = JSON.parse(data);
+            slaves = settings.slaves;
+            callback(null,data);
+        }
+    });
+}
+
 function setSlaveFullInfo(hostname, info) {
     slavesInfo[hostname].fullInfo = info;
 }

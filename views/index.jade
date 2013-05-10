@@ -3,31 +3,52 @@ extends layout
 block content
   script(src='/js/mainPanelController.js')
 
-  div(ng:controller="MainPanelCtrl", ng:init="getCommands()")
+  div(ng:controller="MainPanelCtrl", ng:init="getCommands()",ng-cloak)
 
-    div.navbar.navbar-inverse
+    div.navbar
       div.navbar-inner
-        input(type='number',ng:model='refreshSpeed',min='100',max='15000').navbar-search.pull-right
-        button(ng:click="getCommands()").btn reload commands
+        //input(type='number',ng:model='refreshSpeed',min='100',max='15000').navbar-search.pull-right
+        //button(ng:click="getCommands()").btn reload commands
+        div.container(style="width: auto;")
+            a.brand(href="#") RenderFarmControl
+            ul.nav
+                li.dropdown
+                    a.dropdown-toggle(data-toggle="dropdown", href="#") Multiple
+                        b.caret
+                    ul.dropdown-menu(role="menu", aria-labeledby="dlabel")
+                        li
+                            a(ng:show="showCheckboxes", ng:click="offCheckboxes()") Hide
+                        li
+                            a(ng:show="!showCheckboxes", ng:click="onCheckboxes()") Show
+                        li.divider(ng:show="showCheckboxes")
+                        li
+                            a(ng:show="showCheckboxes", ng:click="selectAll()") Select All
+                        li
+                            a(ng:show="showCheckboxes", ng:click="selectNone()") Select None
+                        li.dropdown-submenu(ng:show="showCheckboxes")
+                            a(href="#") Actions
+                            ul.dropdown-menu
+                                li
+                                    a(href="#",ng:click="wolSelected()") WOL
+                                li.divider(ng:show="showCheckboxes")
+                                li(ng:repeat="cmd in commands")
+                                    a(href="#",ng:click="cmdSelected(cmd)") {{cmd.name}}
+
     table.table.table-striped
-      tr(ng:repeat="(key, value) in info.data")
-        td(style="height:80px")
-          i.icon-info-sign
-          //div.label {{key}}
-        td
-          h2 {{value.fullInfo.hostname}}
-
-        td
-          div(ng:repeat="cpu in value.rtInfo.cpusPerc track by $index",style="width:100px;height:{{80/value.rtInfo.cpusPerc.length}}px;margin-bottom:0px").progress
-            div.bar(style="width: {{cpu}}px", ng:class="{'bar-success':cpu<70,'bar-warning':cpu>70 && cpu<95,'bar-danger':cpu>95}")
-
-        //td
-        //    div(ng:repeat="cpu in value.rtInfo.cpusSpeeds track by $index") {{cpu}}
-        td
-          div(style="width:100px;height:85px;margin-bottom:0px",ng:show="value.rtInfo").progress
-            div.bar(style="width: {{100-value.rtInfo.freemem/value.fullInfo.totalmem*100}}px")
-        td
-          button(ng:show="value.fullInfo.mac",ng:click="wol(value.fullInfo.mac)",style="width:100px;height:100%").btn.btn-success wake
-        td(ng:repeat="cmd in commands",style="width:100px;height:100%")
-            button(style="width:100%;height:100%",ng:click="runCommand(key,cmd)",ng:disabled="!value.rtInfo",ng:class="{'disabled':!value.rtInfo,'btn-success':value.rtInfo.processInfo[cmd.process]}").btn {{cmd.name}}
+       tr(ng:repeat="(key, value) in info.data")
+            td(style="height:40px").center
+              div.squaredThree(ng:show="showCheckboxes",style="width:30px;height:40px;padding:auto;")
+                input(id="{{'cb'+value.fullInfo.hostname}}", type="checkbox", value="None",name="check",ng:model="info.data[key].selected",style="")
+                label(for="{{'cb'+value.fullInfo.hostname}}")
+            td
+              h6 {{value.fullInfo.hostname}}
+            td
+              cpubar(values="{{value.rtInfo.cpusPerc}}", ng:show="value.rtInfo")
+            td
+              div(style="width:100px;height:40px;margin-bottom:0px",ng:show="value.rtInfo").progress
+                div.bar(style="width: {{100-value.rtInfo.freemem/value.fullInfo.totalmem*100}}px;")
+            td
+              button(ng:show="value.fullInfo.mac",ng:click="wol(value.fullInfo.mac)",style="width:100px;height:40px", waitbutton).btn.btn-inverse Wake
+            td(ng:repeat="cmd in commands",style="width:100px;height:40px")
+              button(style="width:100%;height:40px",ng:click="runCommand(key,cmd)",ng:disabled="!value.rtInfo",ng:class="{'disabled':!value.rtInfo,'btn-success':value.rtInfo.processInfo[cmd.process],'btn-inverse':!value.rtInfo.processInfo[cmd.process]}",waitbutton).btn.btn-anim {{cmd.name}}
 

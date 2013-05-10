@@ -1,15 +1,25 @@
 {
     "updateInterval":500,
-    "slaves":["localhost", "192.168.0.101", "192.168.0.102","192.168.0.103","192.168.0.104","192.168.0.105","192.168.0.106","192.168.0.107","192.168.0.111"],
+    "slaves":["localhost", "192.168.0.101", "192.168.0.102","192.168.0.103","192.168.0.104","192.168.0.105","192.168.0.106","192.168.0.107","192.168.0.108"],
     "commands":[
         {
-            "name":"calc",
+            "name":"StandBy",
+            "process":"",
+            "commands":["psshutdown /accepteula -d -t 0 -n 0"]
+        },
+        {
+            "name":"Restart",
+            "process":"",
+            "commands":["shutdown /r"]
+        },
+        {
+            "name":"Calc",
             "process":"calc.exe",
             "commands":[
                 "\"calc.exe\""]
         },
         {
-            "name":"DR12",
+            "name":"DR2012",
             "process":"vrayspawner2012.exe",
             "commands":[
                 "taskkill /f /im vrayspawner2012.exe",
@@ -18,7 +28,7 @@
                 "\"c:\\cad\\3dsmax\\max2012\\3ds Max 2012\\vrayspawner2012.exe\""]
         },
         {
-            "name":"DR14",
+            "name":"DR2014",
             "process": "vrayspawner2014.exe",
             "commands":[
                 "taskkill /f /im vrayspawner2012.exe",
@@ -28,18 +38,13 @@
                 "\"c:\\cad\\3dsmax\\max2014\\3ds Max 2014\\vrayspawner2014.exe\""]
         },
         {
-            "name":"BB",
+            "name":"BackBurner",
             "process": "server.exe",
             "commands":[
                 "taskkill /f /im vrayspawner2012.exe",
                 "taskkill /f /im server.exe",
                 "taskkill /f /im 3dsmax.exe",
                 "\"c:\\cad\\3dsmax\\backburner\\server.exe\""]
-        },
-        {
-            "name":"sleep",
-            "process":"",
-            "commands":["psshutdown /accepteula -d -t 0 -n 0"]
         }
     ]
 }
