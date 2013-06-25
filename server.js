@@ -41,16 +41,18 @@ server.configure(function () {
 
 //setup the errors
 
-server.error(function (err, req, res, next) {
+server.use(function (err, req, res, next) {
     'use strict';
     if (err instanceof NotFound) {
         res.render('404.jade', { locals: {
             title: '404 - Not Found',
             description: '',
             author: '',
-            analyticssiteid: 'XXXXXXX'
+            analyticssiteid: 'XXXXXXX',
+            error: err
         }, status: 404 });
     } else {
+        console.log(err);
         res.render('500.jade', { locals: {
             title: 'The Server Encountered an Error',
             description: '',

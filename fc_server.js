@@ -21,7 +21,9 @@ function init() {
     slaves = settings.slaves;
     console.log('deleting slaves info: '+slavesInfo);
 
-    startUpdating();
+    loadSlaveFullInfos(function(){
+        startUpdating();
+    });
 }
 
 function fcwol(mac,done) {
@@ -54,6 +56,50 @@ function reloadConfig(callback) {
 function setSlaveFullInfo(hostname, info) {
     'use strict';
     slavesInfo[hostname].fullInfo = info;
+    saveSlaveFullInfos();
+}
+
+function saveSlaveFullInfos() {
+    'use strict';
+    var data = {};
+    console.log('caching...');
+
+    for (var name in slavesInfo) {
+        if (slavesInfo.hasOwnProperty(name))
+        {
+            data[name] = slavesInfo[name].fullInfo;
+        }
+    }
+    console.log(slavesInfo);
+    fs.writeFile('server.fullInfoCache.json', JSON.stringify(data), function(err){
+       if (err) {
+           console.log(err);
+       }
+       else{
+           console.log('fullinfo cache saved');
+       }
+    });
+}
+
+function loadSlaveFullInfos(done) {
+    'use strict';
+    fs.readFile('server.fullInfoCache.json', function(err, data) {
+        if (err) {
+            console.log('no cache found');
+            done();
+        }
+        else {
+            var cache = JSON.parse(data);
+            for (var name in cache) {
+                if (cache.hasOwnProperty(name))
+                {
+                    slavesInfo[name] = {};
+                    slavesInfo[name].fullInfo = cache[name];
+                }
+            done();
+            }
+        }
+    });
 }
 
 function clearSlaveFullInfo(hostname) {
