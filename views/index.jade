@@ -59,7 +59,7 @@ block content
                 button(ng:show="!value.rtInfo && value.fullInfo.mac",ng:click="wol(value.fullInfo.mac)",style="width:50%;", waitbutton).btn.btn-inverse Wake
               div(style="height:30px,width:100%",ng:show="value.rtInfo")
                 button(ng:repeat="cmd in commands",ng:click="runCommand(key,cmd)",ng:class="{'btn-success important!':value.rtInfo.processInfo[cmd.process],'btn-inverse':!value.rtInfo.processInfo[cmd.process]}", waitbutton, style="margin:2px;").btn.btn-anim {{cmd.name}}
-              //indbutton() test btn
+
         tr
             td(colspan="99",)
                 div(ng:hide="!showDetails")#details

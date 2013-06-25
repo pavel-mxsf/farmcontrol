@@ -40,7 +40,7 @@ server.configure(function () {
 
 
 //setup the errors
-/*
+
 server.error(function (err, req, res, next) {
     'use strict';
     if (err instanceof NotFound) {
@@ -59,7 +59,7 @@ server.error(function (err, req, res, next) {
             error: err
         }, status: 500 });
     }
-});*/
+});
 server.listen(port);
 
 server.get('/heapdump', function heapDump (req, res) {
