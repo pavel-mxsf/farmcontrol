@@ -1,14 +1,9 @@
 extends layout
 
 block content
-  script(src='/js/mainPanelController.js')
-
-  div(ng:controller="MainPanelCtrl", ng:init="getCommands()",ng-cloak)
-
+  div(ng:app="farmControl", ng:controller="MainPanelCtrl", ng:init="getCommands()", ng:cloak)
     div.navbar
       div.navbar-inner
-        //input(type='number',ng:model='refreshSpeed',min='100',max='15000').navbar-search.pull-right
-        //button(ng:click="getCommands()").btn reload commands
         div.container(style="width: auto;")
             a.brand(href="#") RenderFarmControl
             ul.nav
@@ -33,22 +28,53 @@ block content
                                 li.divider(ng:show="showCheckboxes")
                                 li(ng:repeat="cmd in commands")
                                     a(href="#",ng:click="cmdSelected(cmd)") {{cmd.name}}
+                li
+                    a(href='/users') Manage Users
+            a(href="/logout").btn.btn-inverse.pull-right Logout
+            span.pull-right.navbar-text= 'Logged as ' + user
 
-    table.table.table-striped
-       tr(ng:repeat="(key, value) in info.data")
-            td(style="height:40px").center
-              div.squaredThree(ng:show="showCheckboxes",style="width:30px;height:40px;padding:auto;")
+    table.table
+      tbody(ng:repeat="(key, value) in info.data", ng:init="showDetails = false")
+        tr
+            td(style="height:30px").center
+              div.squaredThree(ng:show="showCheckboxes",style="width:30px;height:30px;padding:auto;")
                 input(id="{{'cb'+value.fullInfo.hostname}}", type="checkbox", value="None",name="check",ng:model="info.data[key].selected",style="")
                 label(for="{{'cb'+value.fullInfo.hostname}}")
             td
-              h6 {{value.fullInfo.hostname}}
+              button.btn.btn-small.btn-inverse(ng:click="showDetails =! showDetails")
+                i(ng:class="{'icon-chevron-down':!showDetails,'icon-chevron-up':showDetails}").icon-white
+            td()
+              h4 {{value.fullInfo.hostname}}
             td
-              cpubar(values="{{value.rtInfo.cpusPerc}}", ng:show="value.rtInfo")
+              //cpubar(values="{{value.rtInfo.cpusPerc}}", ng:show="value.rtInfo")
+              canvas(smoothie="{{value.rtInfo.cpusPerc}}", height="30px",width="150px", style="margin-right: 10px")
+              canvas(smoothie="{{value.rtInfo.hwInfo.cpuTemp}}",smoothieType="temp", height="30px", width="150px", ng:show="value.rtInfo.hwInfo.cpuTemp.length")
             td
-              div(style="width:100px;height:40px;margin-bottom:0px",ng:show="value.rtInfo").progress
-                div.bar(style="width: {{100-value.rtInfo.freemem/value.fullInfo.totalmem*100}}px;")
-            td
-              button(ng:show="value.fullInfo.mac",ng:click="wol(value.fullInfo.mac)",style="width:100px;height:40px", waitbutton).btn.btn-inverse Wake
-            td(ng:repeat="cmd in commands",style="width:100px;height:40px")
-              button(style="width:100%;height:40px",ng:click="runCommand(key,cmd)",ng:disabled="!value.rtInfo",ng:class="{'disabled':!value.rtInfo,'btn-success':value.rtInfo.processInfo[cmd.process],'btn-inverse':!value.rtInfo.processInfo[cmd.process]}",waitbutton).btn.btn-anim {{cmd.name}}
+              div(style="width:150px;height:30px;margin-bottom:0px",ng:show="value.rtInfo").progress
+                div.bar(style="width: {{150-value.rtInfo.freemem/value.fullInfo.totalmem*150}}px;")
+                div(style="position:absolute;margin-top:11px;margin-left:5px")
+                  span(style="text-align: center") {{value.rtInfo.freemem | memoryMB}} {{value.rtInfo.freemem/value.fullInfo.totalmem*100 | int}}% free
+            td(style="padding:0px;")
+              div
+                button(ng:show="!value.rtInfo && value.fullInfo.mac",ng:click="wol(value.fullInfo.mac)",style="width:50%;", waitbutton).btn.btn-inverse Wake
+              div(style="height:30px,width:100%",ng:show="value.rtInfo")
+                button(ng:repeat="cmd in commands",ng:click="runCommand(key,cmd)",ng:class="{'btn-success important!':value.rtInfo.processInfo[cmd.process],'btn-inverse':!value.rtInfo.processInfo[cmd.process]}", waitbutton, style="margin:2px;").btn.btn-anim {{cmd.name}}
+              //indbutton() test btn
+        tr
+            td(colspan="99",)
+                div(ng:hide="!showDetails")#details
+                        div
+                            span.badge.badge-success mac: {{value.fullInfo.mac}}
+                            span.badge.badge-success ip: {{key}}
 
+                            span.badge.badge-info OS: {{value.fullInfo.type}} {{value.fullInfo.release}}
+                            span.badge.badge-info cpuCount: {{value.fullInfo.cpucount}}
+                            span.badge.badge-important total ram: {{value.fullInfo.totalmem | memoryMB}}
+                            span.badge.badge-important uptime: {{value.rtInfo.uptime/3600 | number:0}}h
+
+                            span.badge.badge-success CPU clocks: {{value.rtInfo.hwInfo.cpuClock | cpucores}}
+                            span.badge.badge-warning CPU temperatures: {{value.rtInfo.hwInfo.cpuTemp | cputemps}}
+
+
+  script(src='/js/libs/smoothie.js')
+  script(src='/js/mainPanelController.js')

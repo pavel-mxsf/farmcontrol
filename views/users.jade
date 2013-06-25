@@ -1,0 +1,40 @@
+extends layout
+
+block content
+    div(ng:app="farmControl", ng:controller="usersCtrl",ng:init="loadUsers()")
+        div.navbar
+            div.navbar-inner
+                div.container(style="width: auto;")
+                    a.brand(href="#") RenderFarmControl
+                    ul.nav
+                         li
+                            a(href='/') Main Control Panel
+                    a(href="/logout").btn.btn-inverse.pull-right Logout
+                    span.pull-right.navbar-text= 'Logged as ' + user
+
+        div.container-fluid
+            div.row-fluid
+                div.span3
+                    form
+                        fieldset
+                            legend() {{mode}}
+                            label Username:
+                            input(type="text", placeholder = "username", ng:model="newuser",required,ng:change="updateMode()")
+                            label Password:
+                            input(type="password", placeholder = "password",ng:model="newpassword",required)
+                            br
+                            button(type="submit",ng:click="createUser()").btn.btn-primary
+                                i.icon-ok
+                                |   Submit
+                div.span5
+                    legend Users
+                    table.table.table-hover
+                        tr(ng:repeat="user in users")
+                            td(width="50%")
+                                strong {{user}}
+                            td
+                                button.btn.btn-inverse.btn-mini(ng:click="changePassword(user)") Change Password
+                            td
+                                button.btn.btn-danger.btn-mini(ng:hide="{{user === 'admin'}}", ng:click="deleteUser(user)").pull-right
+                                    i.icon-remove
+        script(src='/js/usersController.js')

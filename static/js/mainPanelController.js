@@ -1,16 +1,22 @@
-angular.module('farmControl', ['ui.bootstrap','ui.bootstrap.tooltip','ui.bootstrap.progressbar']);
-var mm = angular.module('farmControl', []);
+/*global angular */
+angular.module('farmControl', []);
+var mm = angular.module('farmControl', ['ui.bootstrap']);
+
+angular.module('mm', ['ui.bootstrap']);
 
 mm.controller("MainPanelCtrl", function($scope, $http, $timeout) {
+    'use strict';
+    $scope.loaded = false;
     $scope.commands = [];
     $scope.showCheckboxes = false;
 
-    $scope.onCheckboxes = function(){$scope.showCheckboxes=true};
-    $scope.offCheckboxes = function(){$scope.showCheckboxes=false};
+    $scope.onCheckboxes = function(){$scope.showCheckboxes=true;};
+    $scope.offCheckboxes = function(){$scope.showCheckboxes=false;};
     $scope.selectAll = function() {
-          for (var slave in $scope.info.data) {
-              $scope.info.data[slave].selected = true;
-    }};
+        angular.forEach($scope.info.data, function(value,key) {
+            $scope.info.data[key].selected = true;
+        });
+    };
 
     $scope.wolSelected = function() {
         for (var slave in $scope.info.data) {
@@ -29,15 +35,16 @@ mm.controller("MainPanelCtrl", function($scope, $http, $timeout) {
     };
 
     $scope.selectNone = function() {
-        for (var slave in $scope.info.data) {
-            $scope.info.data[slave].selected = false;
-        }
+        angular.forEach($scope.info.data, function(value,key) {
+            $scope.info.data[key].selected = false;
+        });
     };
 
     $scope.getCommands = function () {
         $http({method:'GET', url:'/server/commands'}).
             success(function (data, status, headers, config) {
                 $scope.commands = data;
+                $scope.loaded = true;
             }).
             error(function (data, status, headers, config) {
 
@@ -46,10 +53,6 @@ mm.controller("MainPanelCtrl", function($scope, $http, $timeout) {
 
     $scope.lineOpened = function(slave) {
       return false;
-    };
-
-    $scope.showDetails = function(host) {
-
     };
 
     function update( destination, source ) {
@@ -70,9 +73,9 @@ mm.controller("MainPanelCtrl", function($scope, $http, $timeout) {
         }
         else
         {
-            for (var slave in data.data) {
-                update( $scope.info.data[slave], data.data[slave]);
-            }
+            angular.forEach(data.data, function(value,key) {
+                update($scope.info.data[key], value);
+            });
         }
     }
 
@@ -89,10 +92,6 @@ mm.controller("MainPanelCtrl", function($scope, $http, $timeout) {
 
     $scope.refreshSpeed = 1000;
 
-    $scope.computeCpuTotal = function () {
-
-
-    };
     $scope.wol = function(mac) {
         $http({method:'POST', url:'/server/wol',data:{mac:mac}}).
             success(function (data, status, headers, config) {
@@ -117,6 +116,7 @@ mm.controller("MainPanelCtrl", function($scope, $http, $timeout) {
 });
 
 mm.directive('waitbutton', function factory() {
+    'use strict';
     var directiveDefinitionObject = {
         restrict: 'A',
         scope:true,
@@ -135,8 +135,24 @@ mm.directive('waitbutton', function factory() {
     return directiveDefinitionObject;
 });
 
+mm.directive('indbutton', function() {
+    'use strict';
+    var directiveDefinitionObject = {
+        restrict: 'E',
+        scope:true,
+        replace:true,
+        transclude: true,
+        template: '<button class="btn" ng-transclude ng:click="changeColor(state)">',
+        link:function (scope, element, attrs) {
+
+        }
+    };
+    return directiveDefinitionObject;
+});
+
 
 mm.directive('cpubar', function factory() {
+    'use strict';
     var directiveDefinitionObject = {
         restrict: 'E',
         scope:true,
@@ -159,8 +175,7 @@ mm.directive('cpubar', function factory() {
             '<rect style="fill:url(#myLinearGradient1);" ng-repeat="cpu in cpus track by $index" ng-x="{{$index*12+3}}" ng-y="{{40-cpu/2.5}}" width="10" ng-height="{{cpu/2.55}}">'+
             '</rect>'+
             '</svg>'+
-            '</div>'
-        ,
+            '</div>',
         link:function (scope, element, attrs) {
             scope.cpus = [];
             attrs.$observe('values', function(val){
@@ -168,22 +183,153 @@ mm.directive('cpubar', function factory() {
                     var arr = JSON.parse(val);
                     scope.cpus =  arr;
                 }
-                else {  }
             });
         }
     };
     return directiveDefinitionObject;
 });
 
+/*global SmoothieChart, TimeSeries */
+mm.directive('smoothie', function() {
+    'use strict';
+    var directiveDefinitionObject = {
+        restrict: 'A',
+        scope: true,
+        replace: false,
+        link:function (scope, element, attrs) {
+            scope.timeSeries = [];
+            var options = {
+                labels:{disabled:true,precision:0},
+                grid: {
+                    strokeStyle: 'rgba(119,119,119,0.28)',
+                    sharpLines: true,
+                    millisPerLine: 3000,
+                    verticalSections: 10},
+                millisPerPixel: 800,
+                maxValue: 100,
+                minValue: 0};
+
+            var mainLineStyle = { strokeStyle:'rgb(0, 255, 0)', fillStyle:'rgba(0, 255, 0, 0.5)', lineWidth:2 };
+            var lineStyle = { strokeStyle:'rgb(0, 255, 0)', lineWidth:1 };
+
+            if (attrs.smoothietype === "temp") {
+                console.log('temp');
+                options.labels.disabled=false;
+                options.labels.precision=5;
+                options.labels.fontSize=10;
+                options.millisPerPixel = 800;
+                options.maxValue = undefined;
+                options.minValue = undefined;
+                mainLineStyle.fillStyle = 'rgba(255,0,0,0.5)';
+                mainLineStyle.strokeStyle = 'rgb(255, 0, 0)';
+                lineStyle.strokeStyle='rgb(255, 180, 0)';
+            }
+
+            scope.smoothie = new SmoothieChart(options);
+            scope.smoothie.streamTo(element[0], 500);
+
+            scope.totalTimeSeries = new TimeSeries();
+            scope.smoothie.addTimeSeries(scope.totalTimeSeries, mainLineStyle);
+
+            attrs.$observe('smoothie', function(val) {
+                var values, i;
+                if (scope.timeSeries.length===0) {
+                    if (attrs.smoothie!=='') {
+                        values = JSON.parse(attrs.smoothie);
+                        if (values.length) {
+                            for (i=0; i < values.length; i++) {
+                                var ts = new TimeSeries();
+                                scope.timeSeries.push(ts);
+                                scope.smoothie.addTimeSeries(ts,lineStyle);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                var time = new Date().getTime();
+                if (attrs.smoothie!=='') {
+                    values = JSON.parse(attrs.smoothie);
+                    var total = 0;
+                    if (values) {
+                        for (i = 0; i < values.length; i++) {
+                            total += values[i]/values.length;
+                            scope.timeSeries[i].append(time, values[i]);
+                        }
+                        scope.totalTimeSeries.append(time, total);
+                    }
+
+                }
+                else
+                {
+                    scope.totalTimeSeries.append(time, 0);
+                }
+                }
+            });
+        }
+    };
+    return directiveDefinitionObject;
+});
+
+mm.filter('memoryMB', function(){
+    'use strict';
+    return function(val) {
+        return (parseInt(val/1048576,10).toString()+" MB");
+    };
+});
+
+mm.filter('memoryGB', function(){
+    'use strict';
+    return function(val) {
+        return (parseInt(val/1073741824,10).toString()+" GB");
+    };
+});
+
+mm.filter('int', function(){
+    'use strict';
+    return function(val) {
+        return (parseInt(val,10).toString());
+    };
+});
+
+mm.filter('cpucores', function(){
+    'use strict';
+    return function(val) {
+        var s = '';
+        if (Array.isArray(val)) {
+            for (var i=0;i<val.length;i++) {
+                s = s + parseInt(val[i],0)+ "MHz ";
+            }
+        }
+        return s;
+    };
+});
+
+mm.filter('cputemps', function(){
+    'use strict';
+    return function(val) {
+        var s = '';
+        if (Array.isArray(val)) {
+            for (var i=0;i<val.length;i++) {
+                s = s + parseInt(val[i],0)+ "°C ";
+            }
+        }
+        return s;
+    };
+});
+
+
 
 mm.directive('ngX', function() {
-        return function(scope, elem, attrs) {
+    'use strict';
+    return function(scope, elem, attrs) {
             attrs.$observe('ngX', function(x) {
                 elem.attr('x', x);
             });
         };
     })
     .directive('ngY', function() {
+        'use strict';
         return function(scope, elem, attrs) {
             attrs.$observe('ngY', function(y) {
                 elem.attr('y', y);
@@ -191,6 +337,7 @@ mm.directive('ngX', function() {
         };
     })
     .directive('ngWidth', function() {
+        'use strict';
         return function(scope, elem, attrs) {
             attrs.$observe('ngWidth', function(width) {
                 elem.attr('width', width);
@@ -198,11 +345,10 @@ mm.directive('ngX', function() {
         };
     })
     .directive('ngHeight', function() {
+        'use strict';
         return function(scope, elem, attrs) {
             attrs.$observe('ngHeight', function(height) {
                 elem.attr('height', height);
             });
         };
     });
-
-

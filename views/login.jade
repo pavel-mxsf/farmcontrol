@@ -1,0 +1,13 @@
+extends layout
+
+block content
+    div(style="width:40%")#loginbox.well.media.hero-unit
+        form(action="/login", method="post", enctype="application/x-www-form-urlencoded").form-horizontal
+            div.control-group
+                label.control-label(for="user") Username:
+                input(type="text",name="user",placeholder="Username")#user
+            div.control-group
+                label.control-label(for="password") Password:
+                input(type="password",name="password",placeholder="Password")
+            div.control-group
+                input(type="submit",style="width:100%",value="Login").btn.btn-large.btn-primary
