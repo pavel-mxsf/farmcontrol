@@ -6,8 +6,13 @@ var slave = require('./fc_slave');
 var querystring = require('querystring');
 var http = require('http');
 
-/*var profiler = require('profiler');*/
-
+/*
+require('nodetime').profile({
+    accountKey: '912b85d34b58f2a00d5a8ab6528ba82661586b09',
+    appName: 'Node.js Application'
+});
+*/
+require('look').start();
 //SSL
 /*
 var fs = require('fs');
@@ -38,12 +43,12 @@ server.configure(function () {
     server.use(server.router,null);
 });
 
-
 //setup the errors
 
 server.use(function (err, req, res, next) {
     'use strict';
     if (err instanceof NotFound) {
+        console.log(err);
         res.render('404.jade', { locals: {
             title: '404 - Not Found',
             description: '',
@@ -78,7 +83,7 @@ server.get('/gc', function garbageCollection (req, res) {
     console.log('GC!');
     global.gc();
     console.log('done');
-    res.end();
+    res.end('garbage collected');
 });
 
 if (process.argv[2] === "server") {
@@ -152,7 +157,7 @@ if (process.argv[2] === "server") {
     });
 
 
-    function checkAuth (req, res, next) {
+     function checkAuth (req, res, next) {
         'use strict';
         if (!req.session.user_id) {
             res.redirect('/login');
@@ -297,7 +302,7 @@ server.get('/500', function (req, res) {
 
 server.get('/*', function (req, res) {
     'use strict';
-    //console.log('not found '+req.url);
+    console.log('not found ' + req.url);
     res.end();
     //throw new NotFound();
 });

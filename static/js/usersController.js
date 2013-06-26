@@ -32,9 +32,9 @@ mm.controller("usersCtrl", function($scope, $http) {
     };
 
     $scope.changePassword = function (user) {
-        $scope.updateMode();
         $scope.newuser = user;
         $scope.newpassword = "";
+        $scope.updateMode();
     };
 
     $scope.deleteUser = function(user) {

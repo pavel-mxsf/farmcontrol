@@ -8,6 +8,23 @@
     -o-transition: width 1s ease;
     transition: width 1s ease;
 }
+.btn:hover {
+    background-color: #7e7e7e;
+}
+
+.btn-danger:hover {
+    background-color: #ff5b00;
+    box-shadow: #e8d500 0 0 10px;
+}
+
+.btn-primary:hover {
+    background-color: #3076ff;
+    box-shadow: #479aff 0 0 10px;
+}
+
+.btn-success:hover {
+    background-color: #1aff00;
+}
 
 .btn.loading {
     background-image: -webkit-gradient(linear, 0 0, 100% 100%,
@@ -109,8 +126,8 @@ input[type=checkbox] {
     opacity: 1;
 }
 
-.btn-anim {
-    -webkit-transition-duration: 1s;
+.btn {
+    -webkit-transition-duration: 0.5s;
     -webkit-transition-property: all ;
 }
 
