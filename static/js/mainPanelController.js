@@ -1,11 +1,35 @@
-/*global angular */
 angular.module('farmControl', []);
 var mm = angular.module('farmControl', ['ui.bootstrap']);
 
 angular.module('mm', ['ui.bootstrap']);
 
-mm.controller("MainPanelCtrl", function($scope, $http, $timeout) {
+mm.factory('socket', function ($rootScope) {
+    var socket = io.connect();
+    return {
+        on: function (eventName, callback) {
+            socket.on(eventName, function () {
+                var args = arguments;
+                $rootScope.$apply(function () {
+                    callback.apply(socket, args);
+                });
+            });
+        },
+        emit: function (eventName, data, callback) {
+            socket.emit(eventName, data, function () {
+                var args = arguments;
+                $rootScope.$apply(function () {
+                    if (callback) {
+                        callback.apply(socket, args);
+                    }
+                });
+            });
+        }
+    };
+});
+
+mm.controller("MainPanelCtrl", function($scope, $http, $timeout, socket) {
     'use strict';
+
     $scope.loaded = false;
     $scope.commands = [];
     $scope.showCheckboxes = false;
@@ -69,7 +93,7 @@ mm.controller("MainPanelCtrl", function($scope, $http, $timeout) {
     function rebuild (data) {
         if (!$scope.info) {
             $scope.info = data;
-            console.log('initial');
+            console.log('init done');
         }
         else
         {
@@ -83,10 +107,10 @@ mm.controller("MainPanelCtrl", function($scope, $http, $timeout) {
         var toSend = {hostname:host, cmd:cmd};
         $http({method:'POST', url:'/server/run', data:toSend}).
             success(function (data, status, headers, config) {
-                console.log(data);
+
             }).
             error(function (data, status, headers, config) {
-                console.log(data);
+
             });
     };
 
@@ -105,6 +129,7 @@ mm.controller("MainPanelCtrl", function($scope, $http, $timeout) {
     $scope.refresh = function () {
         $http({method:'GET', url:'/server/infos'}).
             success(function (data, status, headers, config) {
+
                 rebuild(data);
                 $timeout($scope.refresh, $scope.refreshSpeed);
             }).
@@ -213,7 +238,6 @@ mm.directive('smoothie', function() {
             var lineStyle = { strokeStyle:'rgb(0, 255, 0)', lineWidth:1 };
 
             if (attrs.smoothietype === "temp") {
-                console.log('temp');
                 options.labels.disabled=false;
                 options.labels.precision=5;
                 options.labels.fontSize=10;
@@ -317,8 +341,6 @@ mm.filter('cputemps', function(){
         return s;
     };
 });
-
-
 
 mm.directive('ngX', function() {
     'use strict';

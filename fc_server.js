@@ -91,7 +91,7 @@ function loadSlaveFullInfos(done) {
         else {
             var cache = JSON.parse(data);
             for (var name in cache) {
-                if (cache.hasOwnProperty(name))
+                if (cache.hasOwnProperty(name) && slaves[name])
                 {
                     slavesInfo[name] = {};
                     slavesInfo[name].fullInfo = cache[name];

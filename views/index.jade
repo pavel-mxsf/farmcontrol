@@ -1,7 +1,7 @@
 extends layout
 
 block content
-  div(ng:app="farmControl", ng:controller="MainPanelCtrl", ng:init="getCommands()", ng:cloak)
+  div(ng:app="farmControl", ng:controller="MainPanelCtrl", ng:init="getCommands()", ng:cloak, id="maincontainer")
     div.navbar
       div.navbar-inner
         div.container(style="width: auto;")
@@ -36,7 +36,7 @@ block content
     table.table
       tbody(ng:repeat="(key, value) in info.data", ng:init="showDetails = false")
         tr
-            td(style="height:25px").center
+            td(style="height:25px;").center
               div.squaredThree(ng:show="showCheckboxes",style="width:30px;height25px;padding:auto;")
                 input(id="{{'cb'+value.fullInfo.hostname}}", type="checkbox", value="None",name="check",ng:model="info.data[key].selected")
                 label(for="{{'cb'+value.fullInfo.hostname}}")
@@ -45,21 +45,20 @@ block content
                 i(ng:class="{'icon-chevron-down':!showDetails,'icon-chevron-up':showDetails}").icon-white
             td
               h4 {{value.fullInfo.hostname}}
-            td
-              //cpubar(values="{{value.rtInfo.cpusPerc}}", ng:show="value.rtInfo")
-              canvas(smoothie="{{value.rtInfo.cpusPerc}}", height="25px",width="150px", style="margin-right: 10px")
-              canvas(smoothie="{{value.rtInfo.hwInfo.cpuTemp}}", smoothieType="temp", height="25px", width="150px", ng:show="value.rtInfo.hwInfo.cpuTemp.length")
-            td
-              div(style="width:150px;height:25px;margin-bottom:0px",ng:show="value.rtInfo").progress
-                div.bar(style="width: {{150-value.rtInfo.freemem/value.fullInfo.totalmem*150}}px;")
-                div(style="position:absolute;margin-top:4px;margin-left:5px")
-                  span(style="text-align: center") {{value.rtInfo.freemem | memoryMB}} {{value.rtInfo.freemem/value.fullInfo.totalmem*100 | int}}% free
+            td(style="width: 210px;")
+              canvas(smoothie="{{value.rtInfo.cpusPerc}}", height="25px",width="100px", style="margin-right: 10px")
+              canvas(smoothie="{{value.rtInfo.hwInfo.cpuTemp}}", smoothieType="temp", height="25px", width="100px", ng:show="value.rtInfo.hwInfo.cpuTemp.length")
+            td(style="width: 20%;overflow:hidden;")
+              div(style="width:100%;height:25px;margin-bottom:0px;",ng:show="value.rtInfo").progress
+                div.bar(style="width: {{100-value.rtInfo.freemem/value.fullInfo.totalmem*100}}%;")
+                div(style="position:absolute;margin-top:4px;margin-left:5px;")
+                  span(style="text-align: center;") {{value.rtInfo.freemem | memoryMB}} {{value.rtInfo.freemem/value.fullInfo.totalmem*100 | int}}% free
             td(style="padding:0px;")
               div
                 button(ng:show="!value.rtInfo && value.fullInfo.mac",
-                   ng:click="wol(value.fullInfo.mac)", style="width:98%;", waitbutton).btn.btn-inverse Wake
+                   ng:click="wol(value.fullInfo.mac)", style="width:97%;", waitbutton).btn.btn-inverse Wake
               div(style="height:20px,width:100%",ng:show="value.rtInfo")
-                button(ng:repeat="cmd in commands",ng:click="runCommand(key,cmd)",ng:class="{'btn-success important!':value.rtInfo.processInfo[cmd.process],'btn-inverse':!value.rtInfo.processInfo[cmd.process]}", waitbutton, style="margin:2px;").btn.btn-anim.btn-small {{cmd.name}}
+                button(ng:repeat="cmd in commands",ng:click="runCommand(key,cmd)",ng:class="{'btn-success important!':value.rtInfo.processInfo[cmd.process],'btn-inverse':!value.rtInfo.processInfo[cmd.process]}", waitbutton, style="min-width:60px;width:{{100/commands.length-1}}%;margin:2px;").btn.btn-anim.btn-small {{cmd.name}}
 
         tr
             td(colspan="99",)

@@ -6,6 +6,7 @@ var slave = require('./fc_slave');
 var querystring = require('querystring');
 var http = require('http');
 
+
 /*
 require('nodetime').profile({
     accountKey: '912b85d34b58f2a00d5a8ab6528ba82661586b09',
@@ -19,11 +20,13 @@ var fs = require('fs');
 var privateKey  = fs.readFileSync('cert/key.pem').toString();
 var certificate = fs.readFileSync('cert/cert.pem').toString();
 var credentials = {key: privateKey, cert: certificate};
-var server = express.createServer(credentials);*/
+var server = express.createServer(credentials);
+*/
 
 //Setup Express
 
 var server = express();
+
 server.configure(function () {
     'use strict';
     var cookieSessions = require('./node_modules/connect/lib/middleware/cookieSession.js');
@@ -37,9 +40,7 @@ server.configure(function () {
     //server.use(express.staticCache());
     //server.use(express.compress());
     server.use(express.responseTime());
-    //noinspection JSUnresolvedFunction
     server.use(connect.static(__dirname + '/static'), {maxAge: 31557600000});
-
     server.use(server.router,null);
 });
 
@@ -68,13 +69,15 @@ server.use(function (err, req, res, next) {
     }
 });
 server.listen(port);
+var io = require('socket.io');
+var oi = io.listen(server);
 
 server.get('/heapdump', function heapDump (req, res) {
     'use strict';
     console.log('creating heapdump');
     var hd = require('c:\\Users\\vojacek\\AppData\\Roaming\\npm\\node_modules\\heapdump\\build\\Release\\heapdump');
     hd.writeSnapshot();
-    console.log('done');
+    console.log('heapdump done');
     res.end();
 });
 
@@ -86,9 +89,32 @@ server.get('/gc', function garbageCollection (req, res) {
     res.end('garbage collected');
 });
 
+
 if (process.argv[2] === "server") {
 // work as server
+
     console.log('starting RenderFarmControl SERVER ');
+
+    var io = io.listen(server, { log: true });
+    io.set("origins","*");
+    io.sockets.on('connection', function(socket) {
+        'use strict';
+        console.log('server>>> Client connected.');
+        socket.on('message', function(data) {console.log('server>>>' + data);});
+
+        // Disconnect listener
+        socket.on('disconnect', function() {
+            console.log('Client disconnected.');
+        });
+
+        setInterval(function(){
+            var data = fcserver.getSlavesInfo();
+            socket.emit('rtInfo', {data: data});
+        },2000);
+    });
+
+
+
     var fcserver = require('./fc_server');
     fcserver.init();
 
@@ -145,7 +171,6 @@ if (process.argv[2] === "server") {
 
     server.get('/server/infos', checkAuth, function (req, res) {
         'use strict';
-        //if (typeof global.gc === 'function') {global.gc();};
 
         var nfo = {data: fcserver.getSlavesInfo()};
         res.send(nfo);
@@ -256,7 +281,6 @@ if (process.argv[2] === "server") {
         global.gc();
         res.end('server restarted...');
     });
-
 }
 else
 {
@@ -268,13 +292,14 @@ else
     server.get('/slave/fullinfo', function (req, res) {
         'use strict';
         console.log(req.query);
-        slave.fullInfo(function(info){ res.send(info); });
+        slave.fullInfo(function(info){ res.send(info); info = null; });
     });
 
     server.get('/slave/realtimeinfo', function slaveGetRealTimeInfo (req, res) {
         'use strict';
         var info = slave.realtimeInfo();
         res.send(info);
+        info = null;
     });
 
     server.post('/slave/run', function slaveRun (req, res) {
@@ -288,6 +313,7 @@ else
             slave.run(JSON.parse(str));
             console.log(JSON.stringify(JSON.parse(str)));
         });
+        str = null;
         res.end();
     });
 }
